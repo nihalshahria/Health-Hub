@@ -1,4 +1,4 @@
-import { Send } from "@mui/icons-material";
+import { AttachFile, Send } from "@mui/icons-material";
 import { IconButton, InputBase, Paper } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,6 +25,9 @@ function ChatField({ handleChatSend }) {
         mx: "auto",
       }}
     >
+      <IconButton sx={{ p: "10px" }} color="primary">
+        <AttachFile />
+      </IconButton>
       <InputBase
         placeholder="Write answer here"
         sx={{ pl: 2, flex: 1 }}

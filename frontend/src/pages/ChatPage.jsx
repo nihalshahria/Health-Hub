@@ -1,4 +1,4 @@
-import { Stack, Paper, Typography } from "@mui/material";
+import { Stack, Paper, Typography, Button } from "@mui/material";
 import ChatField from "../components/chat/ChatField";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -54,7 +54,7 @@ function ChatPage() {
       ...receivedMsg,
       {
         isReceived: false,
-        sender: userInfo.name,
+        sender: "Me",
         text: chatText,
         timeStamp: Date.now(),
       },
@@ -62,8 +62,10 @@ function ChatPage() {
   };
 
   return (
-    <Stack p={4}>
-      <Stack spacing={2}>
+    <Stack p={2} spacing={2}>
+      <Button variant={"contained"}>Set Another Appointment</Button>
+
+      <Stack spacing={2} height={"67vh"} sx={{ overflowY: "auto" }}>
         {receivedMsg.map((msg, index) => (
           <Paper
             key={index}
@@ -97,6 +99,7 @@ function ChatPage() {
           </Paper>
         ))}
       </Stack>
+
       <ChatField handleChatSend={handleChatSend} />
     </Stack>
   );
