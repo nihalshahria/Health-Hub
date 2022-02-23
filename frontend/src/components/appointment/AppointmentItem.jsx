@@ -64,14 +64,11 @@ function AppointmentItem({ item, userInfo, handleMakePrescriptionClick }) {
       >
         <Avatar
           alt="Profile Picture"
-          src={
-            item.doctorId.profileImage &&
-            `${API_HOST}/${
-              userInfo.role === "user"
-                ? item.doctorId.profileImage
-                : item.patientId.profileImage
-            }`
-          }
+          src={`${API_HOST}/${
+            userInfo.role === "user"
+              ? item.doctorId.profileImage
+              : item.patientId.profileImage
+          }`}
           sx={{ width: 80, height: 80 }}
         />
 

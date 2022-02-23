@@ -55,13 +55,12 @@ const socketInit = (server) => {
     });
 
     socket.on("chatMsg", (data) => {
-      socket
-        .to(data.roomId)
-        .emit("user-sent-Msg", {
-          text: data.text,
-          sender: data.sender,
-          timeStamp: data.timeStamp,
-        });
+      socket.to(data.roomId).emit("user-sent-Msg", {
+        text: data.text,
+        sender: data.sender,
+        senderPic: data.senderPic,
+        timeStamp: data.timeStamp,
+      });
     });
 
     // Emergency socket creation
