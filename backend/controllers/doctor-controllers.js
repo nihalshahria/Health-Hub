@@ -10,49 +10,57 @@ const Appointment = require("../models/appointment");
 const { validationResult } = require("express-validator");
 
 exports.signup = catchAsync(async (req, res, next) => {
-    if (!validationResult(req).isEmpty()) throw new HttpError("Invalid inputs passed, please check your data", 422);
-    const {
-        name,
-        gender,
-        phoneNo,
-        email,
-        password,
-        medicalId,
-        specializations,
-        qualifications,
-        workplaces,
-    } = req.body;
-    const existingDoctor = await Doctor.findOne({ email: email });
-    if (existingDoctor) throw new HttpError("User already exists, please login", 422);
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const createdDoctor = await Doctor.create({
+  if (!validationResult(req).isEmpty())
+    throw new HttpError("Invalid inputs passed, please check your data", 422);
+  const {
+    name,
+    gender,
+    phoneNo,
+    email,
+    password,
+    medicalId,
+    specializations,
+    qualifications,
+    workplaces,
+  } = req.body;
 
-        name,
-        gender,
-        phoneNo,
-        email,
-        password: hashedPassword,
-        profileImage: req.files[0].path,
-        medicalId,
-        licenseFront: req.files[1].path,
-        licenseBack: req.files[2].path,
-        specializations: JSON.parse(specializations),
-        qualifications: JSON.parse(qualifications),
-        workplaces: JSON.parse(workplaces),
-        appointments: [],
-        blogs: [],
-    });
-    const token = jwt.sign({
-        id: createdDoctor.id,
-        email: createdDoctor.email,
-        type: "doctor",
-        name: createdDoctor.name,
-    }, process.env.JWT_KEY, {
-        expiresIn: "6d",
-    });
-    const user = _.pick(createdDoctor, ["id", "name", "email"]);
-    res.status(201).json({ ...user, token });
+  const existingDoctor = await Doctor.findOne({ email: email });
 
+  if (existingDoctor)
+    throw new HttpError("User already exists, please login", 422);
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  const createdDoctor = await Doctor.create({
+    name,
+    gender,
+    phoneNo,
+    email,
+    password: hashedPassword,
+    profileImage: req.files[0].path,
+    medicalId,
+    licenseFront: req.files[1].path,
+    licenseBack: req.files[2].path,
+    specializations: JSON.parse(specializations),
+    qualifications: JSON.parse(qualifications),
+    workplaces: JSON.parse(workplaces),
+    appointments: [],
+    blogs: [],
+  });
+  const token = jwt.sign(
+    {
+      id: createdDoctor.id,
+      email: createdDoctor.email,
+      type: "doctor",
+      name: createdDoctor.name,
+    },
+    process.env.JWT_KEY,
+    {
+      expiresIn: "6d",
+    }
+  );
+  const user = _.pick(createdDoctor, ["id", "name", "email"]);
+  res.status(201).json({ ...user, token });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
