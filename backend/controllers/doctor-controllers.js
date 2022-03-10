@@ -25,9 +25,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     const existingDoctor = await Doctor.findOne({ email: email });
     if (existingDoctor) throw new HttpError("User already exists, please login", 422);
     const hashedPassword = await bcrypt.hash(password, 12);
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    const createdDoctor = await Doctor.create([{
+    const createdDoctor = await Doctor.create({
         name,
         gender,
         phoneNo,
@@ -42,7 +40,7 @@ exports.signup = catchAsync(async (req, res, next) => {
         workplaces: JSON.parse(workplaces),
         appointments: [],
         blogs: [],
-    }], { session: session });
+    });
     const token = jwt.sign({
         id: createdDoctor.id,
         email: createdDoctor.email,
@@ -51,7 +49,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     }, process.env.JWT_KEY, {
         expiresIn: "6d",
     });
-    await session.commitTransaction();
     const user = _.pick(createdDoctor, ["id", "name", "email"]);
     res.status(201).json({ ...user, token });
 });
