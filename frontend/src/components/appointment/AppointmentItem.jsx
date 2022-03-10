@@ -22,7 +22,7 @@ function AppointmentItem({ item, userInfo, handleMakePrescriptionClick }) {
   };
   const handleCancelAppointmentClick = async (id) => {
     try {
-      const res = await axios.delete(`${DELETE_APPOINTMENTS}/${id}`, config);
+      await axios.delete(`${DELETE_APPOINTMENTS}/${id}`, config);
 
       dispatch(getPatientAppointments());
     } catch (error) {
@@ -46,12 +46,13 @@ function AppointmentItem({ item, userInfo, handleMakePrescriptionClick }) {
   };
 
   const handleChatClick = (id) => {
-    navigate("/appointments/chat");
+    navigate(`/appointments/chat/?roomId=${id}`);
   };
 
   const handleJoinSession = (id) => {
-    navigate("/videoChat");
+    navigate(`/appointments/videoCall/?roomId=${id}`);
   };
+
   return (
     <Paper sx={{ width: "100%", maxWidth: "1000px" }}>
       <Stack
@@ -63,16 +64,19 @@ function AppointmentItem({ item, userInfo, handleMakePrescriptionClick }) {
       >
         <Avatar
           alt="Profile Picture"
-          src={
-            item.doctorId.profileImage &&
-            `${API_HOST}/${item.doctorId.profileImage}`
-          }
+          src={`${API_HOST}/${
+            userInfo.role === "user"
+              ? item.doctorId.profileImage
+              : item.patientId.profileImage
+          }`}
           sx={{ width: 80, height: 80 }}
         />
 
         <Stack spacing={2}>
           <Typography variant="body1" fontWeight={"bold"}>
-            {item.doctorId.name}
+            {userInfo.role === "user"
+              ? item.doctorId.name
+              : item.patientId.name}
           </Typography>
           <Typography variant="body1">
             {item.date} {item.time}
@@ -89,7 +93,11 @@ function AppointmentItem({ item, userInfo, handleMakePrescriptionClick }) {
           >
             Chat
           </Button>
-          <Button fullWidth variant="contained" onClick={handleJoinSession}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => handleJoinSession(item._id)}
+          >
             Join session
           </Button>
         </Stack>
@@ -107,7 +115,7 @@ function AppointmentItem({ item, userInfo, handleMakePrescriptionClick }) {
             <Button
               fullWidth
               variant="contained"
-              onClick={() => handleGetPrescriptionClick(item._id)}
+              onClick={(e) => handleGetPrescriptionClick(item._id)}
             >
               Get prescription
             </Button>
@@ -117,7 +125,7 @@ function AppointmentItem({ item, userInfo, handleMakePrescriptionClick }) {
             <Button
               fullWidth
               variant="contained"
-              onClick={() => handleMakePrescriptionClick(item._id)}
+              onClick={(e) => handleMakePrescriptionClick(item._id)}
             >
               Make prescription
             </Button>
