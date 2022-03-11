@@ -1,6 +1,6 @@
 const cors = require("cors");
-const { Server } = require("socket.io");
 const mongoose = require("mongoose");
+const { Server } = require("socket.io");
 const Chat = require("../models/chatModel");
 
 const socketInit = (server) => {

@@ -1,13 +1,13 @@
-const HttpError = require("../models/http-error");
-const Appointment = require("../models/appointment");
-const Doctor = require("../models/doctor");
-const Patient = require("../models/patient");
-const mongoose = require("mongoose");
-const { PDFDocument } = require("pdf-lib");
 const fs = require("fs");
 const path = require("path");
-const catchAsync = require("../utils/catchAsync");
+const mongoose = require("mongoose");
+const { PDFDocument } = require("pdf-lib");
+const Doctor = require("../models/doctor");
+const Patient = require("../models/patient");
 const timeSlots = require("../utils/timeSlots");
+const catchAsync = require("../utils/catchAsync");
+const HttpError = require("../models/http-error");
+const Appointment = require("../models/appointment");
 
 const generatePrescription = catchAsync(async (appointment) => {
   // Create a new document and add a new page
