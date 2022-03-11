@@ -12,14 +12,13 @@ import { GET_USER } from "../constants/apiLinks";
 function ChatPage() {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
+
   const [messageList, setMessageList] = useState([]);
   const [chatWith, setChatWith] = useState({});
 
   const chatRoomId = searchParams.get("roomId");
 
-  const { loading, error, socket } = useSelector(
-    (state) => state.socketConnection
-  );
+  const { socket } = useSelector((state) => state.socketConnection);
 
   const { userInfo } = useSelector((state) => state.userLogin);
 
@@ -43,37 +42,31 @@ function ChatPage() {
       );
 
       socket.on("user-sent-Msg", (data) => {
-        console.log(data);
-        // setMessageList((previousMessages) => [
-        //   ...previousMessages,
-        //   {
-        //     isReceived: true,
-        //     sender: data.sender,
-        //     senderPic: data.senderPic,
-        //     text: data.text,
-        //     timeStamp: data.timeStamp,
-        //   },
-        // ]);
+        setMessageList((previousMessages) => [
+          ...previousMessages,
+          {
+            senderId: data.senderId,
+            text: data.text,
+            timestamp: data.timestamp,
+          },
+        ]);
       });
     }
   }, [chatRoomId, socket]);
 
-  const getPreviousChatData = (chatData) => {
-    console.log(chatData);
-    const chatWithId = chatData.people.find((user) => userInfo.id !== user);
+  const getPreviousChatData = async (chatData) => {
+    const chatWithId = chatData.people.find((p) => userInfo.id !== p);
 
     if (chatWithId) {
-      console.log(chatWithId);
-      getChatWithInfo(chatWithId);
-    }
-  };
-
-  const getChatWithInfo = async (id) => {
-    try {
-      const res = await axios.get(`${GET_USER}/${id}`);
-      console.log(res.data);
-    } catch (error) {
-      console.log(error);
+      try {
+        const res = await axios.get(`${GET_USER}/${chatWithId}`);
+        setChatWith(res.data);
+        setMessageList(chatData.chats);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setMessageList(chatData.chats);
     }
   };
 
@@ -87,16 +80,14 @@ function ChatPage() {
       timestamp: sendingTime.toString(),
     });
 
-    // setMessageList((previousMessages) => [
-    //   ...previousMessages,
-    //   {
-    //     isReceived: false,
-    //     sender: "Me",
-    //     senderPic: user.profileImage,
-    //     text: chatText,
-    //     timeStamp: sendingTime,
-    //   },
-    // ]);
+    setMessageList((previousMessages) => [
+      ...previousMessages,
+      {
+        senderId: userInfo.id,
+        text: chatText,
+        timestamp: sendingTime.toString(),
+      },
+    ]);
   };
 
   return (
@@ -105,7 +96,7 @@ function ChatPage() {
         Set Another Appointment
       </Button>
 
-      <ChatBox messageList={messageList} />
+      <ChatBox messageList={messageList} user={user} chatWith={chatWith} />
 
       <ChatField handleChatSend={handleChatSend} />
     </Stack>

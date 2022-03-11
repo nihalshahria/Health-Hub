@@ -3,6 +3,7 @@ import { Stack, Paper, Typography, Avatar } from "@mui/material";
 import moment from "moment";
 import { useEffect, useRef } from "react";
 import { API_HOST } from "../../constants/apiLinks";
+import ChatItem from "./ChatItem";
 
 const Container = styled.div`
   display: flex;
@@ -40,7 +41,7 @@ const Container = styled.div`
   }
 `;
 
-function ChatBox({ messageList }) {
+function ChatBox({ messageList, user, chatWith }) {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -54,48 +55,18 @@ function ChatBox({ messageList }) {
   return (
     <Container>
       {messageList.map((msg, index) => (
-        <Stack
+        <ChatItem
+          message={{
+            ...msg,
+            isReceived: msg.senderId !== user.id,
+            sender: msg.senderId !== user.id ? chatWith.name : "Me",
+            senderPic:
+              msg.senderId !== user.id
+                ? chatWith.profileImage
+                : user.profileImage,
+          }}
           key={index}
-          direction={msg.isReceived ? "row" : "row-reverse"}
-          alignSelf={msg.isReceived ? "start" : "end"}
-          spacing={1}
-        >
-          <Avatar
-            alt="image"
-            src={`${API_HOST}/${msg.senderPic}`}
-            sx={{ width: 30, height: 30, alignSelf: "end", mb: 1 }}
-          />
-          <Stack alignItems={msg.isReceived ? "start" : "end"}>
-            <Paper
-              variant={"outlined"}
-              sx={{
-                p: 2,
-                display: "flex",
-                flexDirection: "column",
-                gap: 1,
-                alignItems: msg.isReceived ? "start" : "end",
-                color: msg.isReceived ? "text.primary" : "#fff",
-                bgcolor: msg.isReceived ? "#fff" : "primary.main",
-                borderTopLeftRadius: "10px",
-                borderTopRightRadius: "10px",
-                borderBottomLeftRadius: msg.isReceived ? "0px" : "10px",
-                borderBottomRightRadius: msg.isReceived ? "10px" : "0px",
-              }}
-            >
-              <Typography variant="body1" fontWeight={"bold"}>
-                {msg.sender}
-              </Typography>
-
-              <pre style={{ fontFamily: "inherit", margin: 0 }}>
-                <Typography variant="body1">{msg.text}</Typography>
-              </pre>
-            </Paper>
-
-            <Typography variant="caption" color={"text.secondary"}>
-              {moment(Number(msg.timeStamp)).fromNow()}
-            </Typography>
-          </Stack>
-        </Stack>
+        />
       ))}
 
       <div ref={messagesEndRef} />

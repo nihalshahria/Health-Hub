@@ -30,7 +30,13 @@ exports.getUser = async (req, res, next) => {
     if (!user) {
       return next(new HttpError("User not found", 404));
     }
-    res.status(200).json({ user });
+    res.status(200).json({
+      name: user.name,
+      profileImage: user.profileImage,
+      email: user.email,
+      gender: user.gender,
+      phoneNo: user.phoneNo,
+    });
   } catch (error) {
     console.log(error.message);
   }
