@@ -25,7 +25,6 @@ const socketInit = (server) => {
     });
 
     socket.on("join-video-room", (roomId, userName) => {
-      console.log(roomId, userName);
       socket.join(roomId);
       socket.to(roomId).emit("user-connected", userName);
     });
@@ -50,21 +49,20 @@ const socketInit = (server) => {
 
     //Text chat
 
-    socket.on("join-chat-room", async (roomId, userId, getPreviousChatData) => {
+    socket.on("join-chat-room", async (roomId, userId, onJoin) => {
       socket.join(roomId);
 
       try {
         const chatData = await Chat.findOne({ chatRoomId: roomId });
 
         if (!chatData) {
-          console.log("yea", roomId);
           const chatRoom = await Chat.create({
             chatRoomId: roomId,
             people: [userId],
             chats: [],
           });
 
-          getPreviousChatData(chatRoom);
+          onJoin(chatRoom);
         } else {
           const user = chatData.people.find((p) => p === userId);
 
@@ -72,7 +70,7 @@ const socketInit = (server) => {
             chatData.people.push(userId);
             await chatData.save();
           }
-          getPreviousChatData(chatData);
+          onJoin(chatData);
         }
       } catch (error) {
         console.log(error.message);

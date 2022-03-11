@@ -1,12 +1,11 @@
-import { Stack, Button } from "@mui/material";
-import ChatField from "../components/chat/ChatField";
-import { useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import ChatBox from "../components/chat/ChatBox";
-import { useDispatch } from "react-redux";
-import { getUserDetails } from "../actions/userActions";
+import { Stack } from "@mui/material";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import { getUserDetails } from "../actions/userActions";
+import ChatBox from "../components/chat/ChatBox";
+import ChatField from "../components/chat/ChatField";
 import { GET_USER } from "../constants/apiLinks";
 
 function ChatPage() {
@@ -34,14 +33,13 @@ function ChatPage() {
 
   useEffect(() => {
     if (socket && chatRoomId) {
-      socket.emit(
-        "join-chat-room",
-        chatRoomId,
-        userInfo.id,
-        getPreviousChatData
-      );
+      socket.emit("join-chat-room", chatRoomId, userInfo.id, onChatJoin);
 
-      socket.on("user-sent-Msg", (data) => {
+      socket.on("user-sent-Msg", async (data) => {
+        if (!(chatWith && Object.keys(chatWith).length)) {
+          await getChatWithInfo(data.senderId);
+        }
+
         setMessageList((previousMessages) => [
           ...previousMessages,
           {
@@ -54,19 +52,22 @@ function ChatPage() {
     }
   }, [chatRoomId, socket]);
 
-  const getPreviousChatData = async (chatData) => {
+  const onChatJoin = async (chatData) => {
     const chatWithId = chatData.people.find((p) => userInfo.id !== p);
 
     if (chatWithId) {
-      try {
-        const res = await axios.get(`${GET_USER}/${chatWithId}`);
-        setChatWith(res.data);
-        setMessageList(chatData.chats);
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      setMessageList(chatData.chats);
+      await getChatWithInfo(chatWithId);
+    }
+
+    setMessageList(chatData.chats);
+  };
+
+  const getChatWithInfo = async (chatWithId) => {
+    try {
+      const res = await axios.get(`${GET_USER}/${chatWithId}`);
+      setChatWith(res.data);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -92,12 +93,7 @@ function ChatPage() {
 
   return (
     <Stack spacing={2} py={2}>
-      <Button variant={"contained"} sx={{ mx: 2 }}>
-        Set Another Appointment
-      </Button>
-
       <ChatBox messageList={messageList} user={user} chatWith={chatWith} />
-
       <ChatField handleChatSend={handleChatSend} />
     </Stack>
   );

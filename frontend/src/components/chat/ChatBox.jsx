@@ -1,8 +1,5 @@
 import styled from "@emotion/styled";
-import { Stack, Paper, Typography, Avatar } from "@mui/material";
-import moment from "moment";
 import { useEffect, useRef } from "react";
-import { API_HOST } from "../../constants/apiLinks";
 import ChatItem from "./ChatItem";
 
 const Container = styled.div`
